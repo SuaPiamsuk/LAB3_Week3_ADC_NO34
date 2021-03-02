@@ -45,13 +45,13 @@ ADC_HandleTypeDef hadc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint8_t count = 0;
-uint8_t ADCMode = 0;
-uint16_t ADCOutputConverted=0;
+uint8_t ADCMode = 1;
+//uint8_t ADCMode = 0;
+float ADCOutputConverted=0;
 GPIO_PinState SWState[2];
 typedef struct{
 	ADC_ChannelConfTypeDef Config;
-	uint32_t Data;
+	float Data;
 }ADCStructure;
 
 ADCStructure ADCChannel[2] = { 0 };
@@ -117,6 +117,14 @@ int main(void)
 
 	ADCPollingMethodUpdate();
 	SWMode();
+	if(ADCMode == 0){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+		ADCOutputConverted = ADCChannel[0].Data / 4095.0 * 3300.0;
+	}
+	else if(ADCMode == 1){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		ADCOutputConverted = (((ADCChannel[1].Data * 3.3 / 4095.0)-0.76) / 0.0025)+ 25.0 ;
+	}
   }
   /* USER CODE END 3 */
 }
@@ -285,7 +293,8 @@ static void MX_GPIO_Init(void)
 void SWMode(){
 	SWState[0] = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 	if(SWState[0] == GPIO_PIN_RESET && SWState[1] == GPIO_PIN_SET){
-
+		ADCMode++;
+		ADCMode = ADCMode%2;
 	}
 
 	SWState[1] = SWState[0];
