@@ -45,8 +45,10 @@ ADC_HandleTypeDef hadc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint8_t ADCMode=0;
+uint8_t count = 0;
+uint8_t ADCMode = 0;
 uint16_t ADCOutputConverted=0;
+GPIO_PinState SWState[2];
 typedef struct{
 	ADC_ChannelConfTypeDef Config;
 	uint32_t Data;
@@ -63,6 +65,7 @@ static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 void ADCPollingMethodInit();
 void ADCPollingMethodUpdate();
+void SWMode();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -113,6 +116,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	ADCPollingMethodUpdate();
+	SWMode();
   }
   /* USER CODE END 3 */
 }
@@ -278,6 +282,14 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void SWMode(){
+	SWState[0] = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+	if(SWState[0] == GPIO_PIN_RESET && SWState[1] == GPIO_PIN_SET){
+
+	}
+
+	SWState[1] = SWState[0];
+}
 void ADCPollingMethodInit(){
 	//PA0
 	ADCChannel[0].Config.Channel = ADC_CHANNEL_0;
